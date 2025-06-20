@@ -1,5 +1,5 @@
 
-const Page = () => {
+const Home = () => {
   return (
     <div>
       Home page
@@ -7,4 +7,4 @@ const Page = () => {
   )
 }
 
-export default Page
+export default Home
