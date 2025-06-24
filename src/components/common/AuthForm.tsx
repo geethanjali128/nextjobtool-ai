@@ -23,6 +23,8 @@ const authFormSchema=(type:FormType)=>{
 
 const AuthForm = ({type}:{type:FormType}) => {
 
+  const router = useRouter()
+
   const formSchema = authFormSchema(type)
 
    const form = useForm<z.infer<typeof formSchema>>({
@@ -34,7 +36,7 @@ const AuthForm = ({type}:{type:FormType}) => {
     },
   })
 
-  const router = useRouter()
+  
 
  
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -60,20 +62,20 @@ const AuthForm = ({type}:{type:FormType}) => {
 
   return (
     <div >
-      <div className="flex flex-col gap-3 items-center mt-2 mb-8 ">
+      <div className="flex flex-col gap-3 items-center mt-2 mb-5 md:mb-8 ">
         <div className="flex justify-center items-center gap-2">
           <Image
            src="/logo.svg"
             alt="logo" 
             width={32} 
             height={32}/>
-          <p className="text-2xl font-bold">nextjobtool-ai</p>
+          <p className="text-xl  md:text-2xl font-bold">nextjobtool-ai</p>
         </div>
-        <p className="text-base my-2 font-bold ">Practice Job Interviews With AI</p>
+        <p className=" text-sm md:text-base  mt-1 md:my-2 font-bold ">Practice Job Interviews With AI</p>
        
       </div>
       <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8  ">
+      <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-5 md:space-y-8  ">
 
         {!isSignIn&& (
           <FormField
@@ -103,7 +105,7 @@ const AuthForm = ({type}:{type:FormType}) => {
 
         </Button>
 
-        <p className="text-center">{!isSignIn?"Already have an account":"Don't have an account"} ?
+        <p className="text-center text-sm md:text-base">{!isSignIn?"Already have an account":"Don't have an account"} ?
         <Link href={!isSignIn?"/sign-in":"/sign-up"} className="text-violet-500 mx-1 ">{!isSignIn?"sign-in":"sign-up"}</Link>
         </p>
         
