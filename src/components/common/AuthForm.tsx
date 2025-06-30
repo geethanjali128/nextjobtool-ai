@@ -13,6 +13,7 @@ import { Form } from "../ui/form"
 import FormField from "./FormField"
 
 
+// form schema validation
 const authFormSchema=(type:FormType)=>{
   return z.object({
     username:type==="sign-up"?z.string().min(3,"username required"):z.string().optional(),
@@ -27,6 +28,7 @@ const AuthForm = ({type}:{type:FormType}) => {
 
   const formSchema = authFormSchema(type)
 
+  // form instance
    const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,7 +40,7 @@ const AuthForm = ({type}:{type:FormType}) => {
 
   
 
- 
+  // onsubmit functionality
   function onSubmit(values: z.infer<typeof formSchema>) {
     
     try{
