@@ -3,12 +3,15 @@
 import { Button } from "@/components/ui/button"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+import { auth } from "../../../firebase/client"
+import { Signin, Signup } from "../../../lib/actions/auth.action"
 import { Form } from "../ui/form"
 import FormField from "./FormField"
 
@@ -16,7 +19,7 @@ import FormField from "./FormField"
 // form schema validation
 const authFormSchema=(type:FormType)=>{
   return z.object({
-    username:type==="sign-up"?z.string().min(3,"username required"):z.string().optional(),
+    name:type==="sign-up"?z.string().min(3,"username required"):z.string().optional(),
     email:z.string().email("Invalid email"),
     password:z.string().min(5)
   })
@@ -32,7 +35,7 @@ const AuthForm = ({type}:{type:FormType}) => {
    const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name:"",
       email:"",
       password:""
     },
@@ -41,14 +44,62 @@ const AuthForm = ({type}:{type:FormType}) => {
   
 
   // onsubmit functionality
-  function onSubmit(values: z.infer<typeof formSchema>) {
+ async function onSubmit(values: z.infer<typeof formSchema>) {
     
     try{
       if(type === 'sign-up'){
+
+        const{name,email,password}=values
+
+        // Create a new user using Firebase Authentication
+        const userCredentials= await createUserWithEmailAndPassword(auth,email,password)
+
+        // Call server-side signUp() with UID to save name and email in Firestore
+        const result=await Signup({
+          uid:userCredentials.user.uid,
+          name:name!,
+          email,
+          password
+
+        })
+
+        // console.log("Signup result from server:", result);
+        // Handle signup failure
+        if(!result.success){
+          console.log(result.message)
+          toast.error(result.message)
+          return
+        }
+
+       
+       // On success: show toast and redirect user to the sign-in page
         toast.success("Account create successfully , please sign-in.")
         console.log("Sign Up",values)
         router.push('/sign-in')
+
       }else{
+
+        // Handle user sign-in
+        const{email,password}=values
+
+        // Firebase Auth (client-side) to sign in with email and password
+        const userCredentials=await signInWithEmailAndPassword(auth,email,password)
+
+        // Get the ID token from the signed-in user
+        const idToken=await userCredentials.user.getIdToken()
+
+        // If token is missing, show an error
+        if(!idToken){
+          toast.error("Sign in failed,Please try again.")
+          return
+        }
+
+        // call  server-side signIn() to set the session cookie
+        await Signin({
+          email,
+          idToken
+        })
+
         toast.success("Signin successfully")
         console.log("Sign In",values)
         router.push("/")
@@ -82,7 +133,7 @@ const AuthForm = ({type}:{type:FormType}) => {
         {!isSignIn&& (
           <FormField
           control={form.control}
-          name="username"
+          name="name"
           label="Username"
           plcaeholder="Your Username"
           />
