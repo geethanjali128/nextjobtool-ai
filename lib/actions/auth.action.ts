@@ -88,7 +88,7 @@ export const setSessionCookie = async (idToken: string) => {
   const cookieStore = await cookies();
 
   // Create a session cookie using Firebase Admin SDK
-  const sessionCookie = await auth().createSessionCookie(idToken, {
+  const sessionCookie = await auth.createSessionCookie(idToken, {
     expiresIn: SESSION_DURATION * 1000,
   });
 
@@ -100,4 +100,44 @@ export const setSessionCookie = async (idToken: string) => {
     path: "/", // Cookie valid across entire site
     sameSite: "lax",
   });
+};
+
+// Returns the current logged-in user or null
+export const getCurrentUser = async (): Promise<User | null> => {
+  // Get access to the cookie store from the current request
+  const cookieStore = await cookies();
+
+  // Read the 'session' cookie value
+  const sessionCookie = cookieStore.get("session")?.value;
+
+  // If no session cookie, user is not logged in
+  if (!sessionCookie) return null;
+
+  try {
+    // verify session cookie
+    const decodedCliams = await auth.verifySessionCookie(sessionCookie, true);
+
+    // Fetch user data from Firestore using UID
+    const userRecord = await db
+      .collection("users")
+      .doc(decodedCliams.uid)
+      .get();
+
+    if (!userRecord.exists) return null;
+
+    // Return user data with ID
+    return {
+      ...userRecord.data(),
+      id: userRecord.id,
+    } as User;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+export const isAuthenticated = async () => {
+  const user = await getCurrentUser();
+
+  return !!user;
 };

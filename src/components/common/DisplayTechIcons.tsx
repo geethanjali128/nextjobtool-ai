@@ -10,7 +10,7 @@ const DisplayTechIcons = async ({techStack}: TechIconProps) => {
         <div  key={index}  className={` bg-gray-600 rounded-full p-2 ${index>=1&& "-ml-2"}`}>
            < Image 
   
-  src={url}
+    src={url}
    alt={tech}
     width={100} 
     height={100}

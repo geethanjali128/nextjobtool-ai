@@ -23,7 +23,7 @@ const InterviewCard = ({intevriewId,userId,role,type,techstack,createdAt}:Interv
   const formattedDate=dayjs(feedback?.createdAt || createdAt ||Date.now()).format('MMM D , YYYY')
   return (
     <div className="w-[300px] bg-indigo-100 p-5 rounded-lg shadow-2xs relative">
-      <div className="space-y-5">
+      <div className="space-y-8">
         {/* badge */}
         <div className="absolute top-0 right-0">
           <p className="bg-gray-600 text-white w-fit py-1 px-2 text-sm rounded-tr-lg rounded-bl-lg ">{normalizedType}</p>
@@ -57,8 +57,10 @@ const InterviewCard = ({intevriewId,userId,role,type,techstack,createdAt}:Interv
         </div>
        
         {/* tech icons and button */}
-        <div className="flex justify-between items-baseline-last">
+        <div className="flex justify-between items-center ">
+          {/* tech icons */}
          <DisplayTechIcons techStack={techstack}/>
+
           <Button asChild className="bg-violet-500 text-white   rounded-3xl">
             <Link href={feedback?`/interview/${intevriewId}/feedback`:`interview/${intevriewId}`}>
             {feedback?"Check Feedback":"View Interview"}

@@ -16,7 +16,7 @@ import { Form } from "../ui/form"
 import FormField from "./FormField"
 
 
-// form schema validation
+// form schema validation based on the form type
 const authFormSchema=(type:FormType)=>{
   return z.object({
     name:type==="sign-up"?z.string().min(3,"username required"):z.string().optional(),
@@ -25,6 +25,7 @@ const authFormSchema=(type:FormType)=>{
   })
 }
 
+// AuthForm component
 const AuthForm = ({type}:{type:FormType}) => {
 
   const router = useRouter()
