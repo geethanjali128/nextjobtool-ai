@@ -7,6 +7,7 @@ export async function GET() {
   return Response.json({ success: true, data: "Thank You!" }, { status: 200 });
 }
 
+// To generate AI-based interview questions based on user input and store them in Firestore.
 export async function POST(request: Request) {
   const { type, role, level, techstack, amount, userid } = await request.json();
 
