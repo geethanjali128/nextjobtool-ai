@@ -4,40 +4,52 @@ import { NextResponse } from "next/server";
 import { db } from "../../../../../firebase/admin";
 import { getRandomInterviewCover } from "../../../../../lib/utils";
 
+type Payload = {
+  type?: string;
+  role?: string;
+  level?: string;
+  techstack?: string;
+  amount?: number;
+  userid?: string;
+};
+
 export async function GET() {
   return Response.json({ success: true, data: "Thank You!" }, { status: 200 });
 }
 
-// To generate AI-based interview questions based on user input and store them in Firestore.
+/// POST — Generate AI interview questions + store in Firestore
 export async function POST(request: Request) {
-  // ---------- 1. Parse raw body ----------
   const rawBody = await request.json();
 
-  // ---------- 2. Detect Vapi‑tool payload ----------
-  let payload: any = {};
+  // --- Step 1: Extract Payload ---
+  let payload: Payload = {};
   if (rawBody?.message?.toolCallList?.[0]?.function?.arguments) {
-    // Assistant tool call → arguments are a JSON string
-    const toolArgs = JSON.parse(
-      rawBody.message.toolCallList[0].function.arguments as string
-    );
-    payload = { ...toolArgs };
+    try {
+      const toolArgs = JSON.parse(
+        rawBody.message.toolCallList[0].function.arguments as string
+      );
+      payload = { ...toolArgs };
+    } catch (error) {
+      console.error("❌ Failed to parse toolCall arguments:", error);
+      return NextResponse.json(
+        { success: false, error: "Invalid toolCall arguments" },
+        { status: 400 }
+      );
+    }
   } else {
-    // Direct HTTP call (Postman / test) → body already JSON
     payload = { ...rawBody };
   }
 
-  // ---------- 3. Pull userid from safest place ----------
-  const userid =
-    // sent by frontend in /call metadata
+  // --- Step 2: Get userId from safest place ---
+  const userid: string | null =
     rawBody?.metadata?.userid ||
-    // or custom header fallback
     request.headers.get("x-user-id") ||
-    // or body (Postman test)
-    payload.userid;
+    payload.userid ||
+    null;
 
   const { type, role, level, techstack, amount } = payload;
 
-  // ---------- 4. Validate ----------
+  // --- Step 3: Validate Inputs ---
   if (!type || !role || !level || !techstack || !amount || !userid) {
     console.log("❌ Missing field(s)", {
       type,
@@ -54,25 +66,38 @@ export async function POST(request: Request) {
   }
 
   try {
-    // ---------- 5. Generate questions with Gemini ----------
+    // --- Step 4: Generate Questions ---
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
-      prompt: `Prepare ${amount} ${type} interview questions for a ${level} ${role}
-using: ${techstack}. Return JSON array only.`,
+      prompt: `Prepare ${amount} ${type} interview questions for a ${level} ${role}. Use: ${techstack}. Return JSON array only.`,
     });
 
-    // ---------- 6. Save to Firestore ----------
-    await db.collection("interviews").add({
+    // --- Step 5: Parse Questions ---
+    let parsedQuestions: string[];
+    try {
+      parsedQuestions = JSON.parse(questions);
+    } catch (e) {
+      console.error("❌ Failed to parse Gemini response:", questions);
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON from Gemini" },
+        { status: 500 }
+      );
+    }
+
+    // --- Step 6: Save to Firestore ---
+    const interview = {
       role,
       type,
       level,
       techstack: techstack.split(","),
-      question: JSON.parse(questions),
+      question: parsedQuestions,
       userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
-    });
+    };
+
+    await db.collection("interviews").add(interview);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
