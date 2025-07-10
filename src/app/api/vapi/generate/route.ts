@@ -69,8 +69,14 @@ export async function POST(request: Request) {
     // --- Step 4: Generate Questions ---
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
-      prompt: `Prepare ${amount} ${type} interview questions for a ${level} ${role}. Use: ${techstack}. Return JSON array only.`,
+      prompt: `Prepare exactly ${amount} ${type} interview questions for a ${level} ${role}.
+      The tech stack is: ${techstack}.
+      Return only a valid JSON array like this:
+      ["Question 1", "Question 2", "Question 3"]
+      Do NOT add any explanation or formatting. No markdown. Just return the array.`,
     });
+
+    console.log("🧠 Gemini raw output:", questions);
 
     // --- Step 5: Parse Questions ---
     let parsedQuestions: string[];
