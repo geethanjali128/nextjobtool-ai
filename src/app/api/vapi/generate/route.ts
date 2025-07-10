@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     try {
       parsedQuestions = JSON.parse(questions);
     } catch (e) {
-      console.error("❌ Failed to parse Gemini response:", questions);
+      console.error("❌ Failed to parse Gemini response:", e, questions);
       return NextResponse.json(
         { success: false, error: "Invalid JSON from Gemini" },
         { status: 500 }
