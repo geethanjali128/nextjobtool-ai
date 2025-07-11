@@ -15,6 +15,8 @@ interface Payload {
 export async function POST(request: Request) {
   const rawBody = await request.json();
 
+  console.log("📦 Full Request Body:", JSON.stringify(rawBody, null, 2));
+
   // Set CORS headers
   const headers = {
     "Access-Control-Allow-Origin": "*", // allow all origins or set your domain
