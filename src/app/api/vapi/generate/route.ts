@@ -44,11 +44,11 @@ export async function POST(request: Request) {
 
   // 2. Extract userId from metadata or headers or payload
   const userid =
-    payload.userid || // ✅ check payload first now
-    rawBody?.metadata?.userid || // fallback
+    payload.userid ||
+    rawBody?.message?.assistantOverrides?.variableValues?.userid ||
     request.headers.get("x-user-id");
 
-  console.log("user id", userid);
+  console.log("✅ Extracted user ID:", userid);
 
   const { type, role, level, techstack, amount } = payload;
 
