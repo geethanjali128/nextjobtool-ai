@@ -33,6 +33,8 @@ export async function POST(request: Request) {
     request.headers.get("x-user-id") || // optional fallback
     payload.userid;
 
+  console.log("user id", userid);
+
   const { type, role, level, techstack, amount } = payload;
 
   // 3. Validate all fields
@@ -77,6 +79,8 @@ export async function POST(request: Request) {
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
     };
+
+    console.log("intevriew obj", interview);
 
     await db.collection("interviews").add(interview);
 
