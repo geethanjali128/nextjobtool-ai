@@ -29,7 +29,13 @@ export async function POST(request: Request) {
 
   if (rawBody?.message?.toolCallList?.[0]?.function?.arguments) {
     const args = rawBody.message.toolCallList[0].function.arguments;
-    payload = JSON.parse(args); // convert from string to JSON
+    if (typeof args === "string") {
+      payload = JSON.parse(args);
+    } else {
+      // ✅ If it's already an object, no need to parse
+      payload = args;
+    }
+    // convert from string to JSON
   } else {
     payload = { ...rawBody };
   }
