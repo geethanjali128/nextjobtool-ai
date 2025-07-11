@@ -27,7 +27,7 @@ interface SavedMessage {
 
 const Agent = ({userName,userId,type}:AgentProps) => {
 
-  console.log(userName,userId,type)
+  // console.log(userName,userId,type)
 
   const router=useRouter()
 
@@ -86,12 +86,15 @@ const Agent = ({userName,userId,type}:AgentProps) => {
       setCallStatus(CallStatus.CONNECTING)
 
      
+      console.log("Sending to Vapi => userId:", userId);
 
-     vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!, {
+     vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!,  {
   variableValues: {
     username: userName,
-    userid: userId, // ✅ send this here so it reaches your tool
-  }
+  },
+  metadata: {
+    userid: userId,
+  },
 })
       
 
