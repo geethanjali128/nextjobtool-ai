@@ -15,56 +15,48 @@ interface Payload {
 export async function POST(request: Request) {
   const rawBody = await request.json();
 
-  console.log("📦 Full Request Body:", JSON.stringify(rawBody, null, 2));
+  // Ensure it's a parsed object
+  const body = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
+  console.log("📦 Full Request Body:", JSON.stringify(body, null, 2));
 
-  // Set CORS headers
   const headers = {
-    "Access-Control-Allow-Origin": "*", // allow all origins or set your domain
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
-  // 1. Extract parameters from Vapi Tool OR manual POST (like Postman)
+  // Extract function tool arguments (Vapi tool call) or fallback to body
   let payload: Partial<Payload> = {};
-
-  // Tool call payload (from assistant)
-
-  if (rawBody?.message?.toolCallList?.[0]?.function?.arguments) {
-    const args = rawBody.message.toolCallList[0].function.arguments;
-    if (typeof args === "string") {
-      payload = JSON.parse(args);
-    } else {
-      // ✅ If it's already an object, no need to parse
-      payload = args;
-    }
-    // convert from string to JSON
+  if (body?.message?.toolCallList?.[0]?.function?.arguments) {
+    const args = body.message.toolCallList[0].function.arguments;
+    payload = typeof args === "string" ? JSON.parse(args) : args;
   } else {
-    payload = { ...rawBody };
+    payload = { ...body };
   }
 
-  // 2. Extract userId from metadata or headers or payload
-  function extractUserId(rawBody: any): string | null {
+  // ✅ Extract user ID from assistant or call
+  function extractUserId(body: any): string | null {
     return (
-      rawBody?.assistant?.variableValues?.userid ||
-      rawBody?.call?.assistantOverrides?.variableValues?.userid ||
-      rawBody?.call?.assistant?.variableValues?.userid ||
+      body?.assistant?.variableValues?.userid ||
+      body?.call?.assistantOverrides?.variableValues?.userid ||
+      body?.call?.assistant?.variableValues?.userid ||
       null
     );
   }
 
-  const userid = extractUserId(rawBody);
+  const userid = extractUserId(body);
 
-  console.log("🧠 assistant:", rawBody?.assistant?.variableValues);
+  console.log("🧠 assistant:", body?.assistant?.variableValues);
   console.log(
     "🧠 call.assistantOverrides:",
-    rawBody?.call?.assistantOverrides?.variableValues
+    body?.call?.assistantOverrides?.variableValues
   );
-  console.log("🧠 call.assistant:", rawBody?.call?.assistant?.variableValues);
+  console.log("🧠 call.assistant:", body?.call?.assistant?.variableValues);
   console.log("✅ Extracted userid:", userid);
 
   const { type, role, level, techstack, amount } = payload;
 
-  // 3. Validate all fields
+  // ❌ Validate required fields
   if (!type || !role || !level || !amount || !userid) {
     console.log("❌ Missing fields", {
       type,
@@ -74,7 +66,6 @@ export async function POST(request: Request) {
       amount,
       userid,
     });
-
     return Response.json(
       { success: false, error: "Missing fields" },
       { status: 400 }
@@ -82,7 +73,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 4. Generate text using Gemini
+    // 🔮 Generate questions with Gemini
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
       prompt: `Prepare questions for a job interview.
@@ -95,12 +86,11 @@ export async function POST(request: Request) {
         No explanation, no formatting.`,
     });
 
-    // 5. Store in Firestore
     const interview = {
       role,
       type,
       level,
-      techstack: techstack ? techstack.split(",") : [],
+      techstack: techstack ? techstack.split(",").map((t) => t.trim()) : [],
       questions: JSON.parse(questions),
       userId: userid,
       finalized: true,
@@ -108,7 +98,7 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    console.log("intevriew obj", interview);
+    console.log("📄 Interview object:", interview);
 
     await db.collection("interviews").add(interview);
 
@@ -117,50 +107,15 @@ export async function POST(request: Request) {
       headers,
     });
   } catch (error) {
-    console.error("🔥 Error:", error);
+    console.error("🔥 Error generating/storing interview:", error);
     return Response.json(
-      { success: false, error: "Invalid JSON from Gemini" },
+      {
+        success: false,
+        error: "Failed to generate or parse interview questions",
+      },
       { status: 500 }
     );
   }
-
-  // try {
-  //   const { text: questions } = await generateText({
-  //     model: google("gemini-2.0-flash-001"),
-  //     prompt: `Prepare questions for a job interview.
-  //       The job role is ${role}.
-  //       The job experience level is ${level}.
-  //       The tech stack used in the job is: ${techstack}.
-  //       The focus between behavioural and technical questions should lean towards: ${type}.
-  //       The amount of questions required is: ${amount}.
-  //       Please return only the questions, without any additional text.
-  //       The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
-  //       Return the questions formatted like this:
-  //       ["Question 1", "Question 2", "Question 3"]
-
-  //       Thank you! <3
-  //   `,
-  //   });
-
-  //   const interview = {
-  //     role: role,
-  //     type: type,
-  //     level: level,
-  //     techstack: techstack.split(","),
-  //     questions: JSON.parse(questions),
-  //     userId: userid,
-  //     finalized: true,
-  //     coverImage: getRandomInterviewCover(),
-  //     createdAt: new Date().toISOString(),
-  //   };
-
-  //   await db.collection("interviews").add(interview);
-
-  //   return Response.json({ success: true }, { status: 200 });
-  // } catch (error) {
-  //   console.error("Error:", error);
-  //   return Response.json({ success: false, error: error }, { status: 500 });
-  // }
 }
 
 export async function GET() {
