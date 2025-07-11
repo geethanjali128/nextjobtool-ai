@@ -33,18 +33,27 @@ export async function POST(request: Request) {
   }
 
   // ✅ Extract userid correctly
-  const userid =
-    rawBody?.call?.assistantOverrides?.variableValues?.userid ||
-    rawBody?.assistantOverrides?.variableValues?.userid ||
-    rawBody?.assistant?.variableValues?.userid ||
-    null;
+  function extractUserId(reqBody) {
+    return (
+      // Vapi sometimes puts it under call.assistantOverrides
+      reqBody?.call?.assistantOverrides?.variableValues?.userid ||
+      // Sometimes it comes under assistant.variableValues
+      reqBody?.assistant?.variableValues?.userid ||
+      // Sometimes Vapi flattens everything into top-level variableValues (rare but safe fallback)
+      reqBody?.variableValues?.userid ||
+      null
+    );
+  }
 
-  console.log("✅ Extracted userid:", userid);
-  console.log("🧠 assistantOverrides in rawBody:", rawBody?.assistantOverrides);
-  console.log(
-    "🧠 call.assistantOverrides in rawBody:",
-    rawBody?.call?.assistantOverrides
-  );
+  const userid = extractUserId(rawBody);
+
+  if (!userid) {
+    console.error("❌ userid is missing");
+    return Response.json(
+      { success: false, error: "userid is missing" },
+      { status: 400 }
+    );
+  }
 
   const { type, role, level, techstack, amount } = payload;
 
