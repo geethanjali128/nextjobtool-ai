@@ -15,10 +15,7 @@ interface Payload {
 export async function POST(request: Request) {
   const rawBody = await request.json();
 
-  // ✅ Always work with rawBody for metadata
-  const body = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
-
-  console.log("📦 Full Request Body:", JSON.stringify(body, null, 2));
+  console.log("📦 Full Request Body:", JSON.stringify(rawBody, null, 2));
 
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -28,31 +25,20 @@ export async function POST(request: Request) {
 
   // ✅ Extract tool arguments
   let payload: Partial<Payload> = {};
-  if (body?.message?.toolCallList?.[0]?.function?.arguments) {
-    const args = body.message.toolCallList[0].function.arguments;
+  if (rawBody?.message?.toolCallList?.[0]?.function?.arguments) {
+    const args = rawBody.message.toolCallList[0].function.arguments;
     payload = typeof args === "string" ? JSON.parse(args) : args;
   } else {
-    payload = { ...body };
+    payload = { ...rawBody };
   }
 
-  // ✅ Extract user ID from full rawBody, not just parsed tool arguments
-  function extractUserId(raw: any): string | null {
-    return (
-      raw?.call?.assistantOverrides?.variableValues?.userid ||
-      raw?.assistant?.variableValues?.userid ||
-      raw?.call?.assistant?.variableValues?.userid ||
-      null
-    );
-  }
+  // ✅ Extract userid correctly
+  const userid =
+    rawBody?.call?.assistantOverrides?.variableValues?.userid ??
+    rawBody?.assistant?.variableValues?.userid ??
+    rawBody?.call?.assistant?.variableValues?.userid ??
+    null;
 
-  const userid = extractUserId(rawBody); // 👈 Use rawBody here!
-
-  console.log("🧠 assistant:", rawBody?.assistant?.variableValues);
-  console.log(
-    "🧠 call.assistantOverrides:",
-    rawBody?.call?.assistantOverrides?.variableValues
-  );
-  console.log("🧠 call.assistant:", rawBody?.call?.assistant?.variableValues);
   console.log("✅ Extracted userid:", userid);
 
   const { type, role, level, techstack, amount } = payload;
