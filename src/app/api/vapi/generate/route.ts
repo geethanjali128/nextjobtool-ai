@@ -34,12 +34,17 @@ export async function POST(request: Request) {
 
   // ✅ Extract userid correctly
   const userid =
-    rawBody?.call?.assistantOverrides?.variableValues?.userid ??
-    rawBody?.assistant?.variableValues?.userid ??
-    rawBody?.call?.assistant?.variableValues?.userid ??
+    rawBody?.call?.assistantOverrides?.variableValues?.userid ||
+    rawBody?.assistantOverrides?.variableValues?.userid ||
+    rawBody?.assistant?.variableValues?.userid ||
     null;
 
   console.log("✅ Extracted userid:", userid);
+  console.log("🧠 assistantOverrides in rawBody:", rawBody?.assistantOverrides);
+  console.log(
+    "🧠 call.assistantOverrides in rawBody:",
+    rawBody?.call?.assistantOverrides
+  );
 
   const { type, role, level, techstack, amount } = payload;
 
