@@ -43,12 +43,24 @@ export async function POST(request: Request) {
   }
 
   // 2. Extract userId from metadata or headers or payload
-  const userid =
-    payload.userid ||
-    rawBody?.assistant?.variableValues?.userid ||
-    request.headers.get("x-user-id");
+  function extractUserId(rawBody: any): string | null {
+    return (
+      rawBody?.assistant?.variableValues?.userid ||
+      rawBody?.call?.assistantOverrides?.variableValues?.userid ||
+      rawBody?.call?.assistant?.variableValues?.userid ||
+      null
+    );
+  }
 
-  console.log("extract userid", userid);
+  const userid = extractUserId(rawBody);
+
+  console.log("🧠 assistant:", rawBody?.assistant?.variableValues);
+  console.log(
+    "🧠 call.assistantOverrides:",
+    rawBody?.call?.assistantOverrides?.variableValues
+  );
+  console.log("🧠 call.assistant:", rawBody?.call?.assistant?.variableValues);
+  console.log("✅ Extracted userid:", userid);
 
   const { type, role, level, techstack, amount } = payload;
 
