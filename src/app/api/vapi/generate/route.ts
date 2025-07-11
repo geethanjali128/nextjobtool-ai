@@ -15,8 +15,9 @@ interface Payload {
 export async function POST(request: Request) {
   const rawBody = await request.json();
 
-  // Ensure it's a parsed object
+  // ✅ Always work with rawBody for metadata
   const body = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
+
   console.log("📦 Full Request Body:", JSON.stringify(body, null, 2));
 
   const headers = {
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
-  // Extract function tool arguments (Vapi tool call) or fallback to body
+  // ✅ Extract tool arguments
   let payload: Partial<Payload> = {};
   if (body?.message?.toolCallList?.[0]?.function?.arguments) {
     const args = body.message.toolCallList[0].function.arguments;
@@ -34,29 +35,28 @@ export async function POST(request: Request) {
     payload = { ...body };
   }
 
-  // ✅ Extract user ID from assistant or call
-  function extractUserId(body: any): string | null {
+  // ✅ Extract user ID from full rawBody, not just parsed tool arguments
+  function extractUserId(raw: any): string | null {
     return (
-      body?.assistant?.variableValues?.userid ||
-      body?.call?.assistantOverrides?.variableValues?.userid ||
-      body?.call?.assistant?.variableValues?.userid ||
+      raw?.call?.assistantOverrides?.variableValues?.userid ||
+      raw?.assistant?.variableValues?.userid ||
+      raw?.call?.assistant?.variableValues?.userid ||
       null
     );
   }
 
-  const userid = extractUserId(body);
+  const userid = extractUserId(rawBody); // 👈 Use rawBody here!
 
-  console.log("🧠 assistant:", body?.assistant?.variableValues);
+  console.log("🧠 assistant:", rawBody?.assistant?.variableValues);
   console.log(
     "🧠 call.assistantOverrides:",
-    body?.call?.assistantOverrides?.variableValues
+    rawBody?.call?.assistantOverrides?.variableValues
   );
-  console.log("🧠 call.assistant:", body?.call?.assistant?.variableValues);
+  console.log("🧠 call.assistant:", rawBody?.call?.assistant?.variableValues);
   console.log("✅ Extracted userid:", userid);
 
   const { type, role, level, techstack, amount } = payload;
 
-  // ❌ Validate required fields
   if (!type || !role || !level || !amount || !userid) {
     console.log("❌ Missing fields", {
       type,
@@ -73,7 +73,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 🔮 Generate questions with Gemini
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
       prompt: `Prepare questions for a job interview.
