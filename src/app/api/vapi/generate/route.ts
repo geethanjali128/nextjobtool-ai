@@ -15,6 +15,13 @@ interface Payload {
 export async function POST(request: Request) {
   const rawBody = await request.json();
 
+  // Set CORS headers
+  const headers = {
+    "Access-Control-Allow-Origin": "*", // allow all origins or set your domain
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
+
   // 1. Extract parameters from Vapi Tool OR manual POST (like Postman)
   let payload: Partial<Payload> = {};
 
@@ -47,6 +54,7 @@ export async function POST(request: Request) {
       amount,
       userid,
     });
+
     return Response.json(
       { success: false, error: "Missing fields" },
       { status: 400 }
@@ -84,7 +92,10 @@ export async function POST(request: Request) {
 
     await db.collection("interviews").add(interview);
 
-    return Response.json({ success: true }, { status: 200 });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers,
+    });
   } catch (error) {
     console.error("🔥 Error:", error);
     return Response.json(
