@@ -1,57 +1,43 @@
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
-import { NextResponse } from "next/server";
 import { db } from "../../../../../firebase/admin";
 import { getRandomInterviewCover } from "../../../../../lib/utils";
 
-type Payload = {
-  type?: string;
-  role?: string;
-  level?: string;
-  techstack?: string;
-  amount?: number;
+interface Payload {
+  type: string;
+  role: string;
+  level: string;
+  techstack: string;
+  amount: number;
   userid?: string;
-};
-
-export async function GET() {
-  return Response.json({ success: true, data: "Thank You!" }, { status: 200 });
 }
 
-/// POST — Generate AI interview questions + store in Firestore
 export async function POST(request: Request) {
   const rawBody = await request.json();
 
-  // --- Step 1: Extract Payload ---
-  let payload: Payload = {};
+  // 1. Extract parameters from Vapi Tool OR manual POST (like Postman)
+  let payload: Partial<Payload> = {};
+
+  // Tool call payload (from assistant)
+
   if (rawBody?.message?.toolCallList?.[0]?.function?.arguments) {
-    try {
-      const toolArgs = JSON.parse(
-        rawBody.message.toolCallList[0].function.arguments as string
-      );
-      payload = { ...toolArgs };
-    } catch (error) {
-      console.error("❌ Failed to parse toolCall arguments:", error);
-      return NextResponse.json(
-        { success: false, error: "Invalid toolCall arguments" },
-        { status: 400 }
-      );
-    }
+    const args = rawBody.message.toolCallList[0].function.arguments;
+    payload = JSON.parse(args); // convert from string to JSON
   } else {
     payload = { ...rawBody };
   }
 
-  // --- Step 2: Get userId from safest place ---
-  const userid: string | null =
-    rawBody?.metadata?.userid ||
-    request.headers.get("x-user-id") ||
-    payload.userid ||
-    null;
+  // 2. Extract userId from metadata or headers or payload
+  const userid =
+    rawBody?.metadata?.userid || // ✅ sent by frontend during call
+    request.headers.get("x-user-id") || // optional fallback
+    payload.userid;
 
   const { type, role, level, techstack, amount } = payload;
 
-  // --- Step 3: Validate Inputs ---
+  // 3. Validate all fields
   if (!type || !role || !level || !techstack || !amount || !userid) {
-    console.log("❌ Missing field(s)", {
+    console.log("❌ Missing fields", {
       type,
       role,
       level,
@@ -59,44 +45,33 @@ export async function POST(request: Request) {
       amount,
       userid,
     });
-    return NextResponse.json(
-      { success: false, error: "Missing required fields" },
+    return Response.json(
+      { success: false, error: "Missing fields" },
       { status: 400 }
     );
   }
 
   try {
-    // --- Step 4: Generate Questions ---
+    // 4. Generate text using Gemini
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
-      prompt: `Prepare exactly ${amount} ${type} interview questions for a ${level} ${role}.
-      The tech stack is: ${techstack}.
-      Return only a valid JSON array like this:
-      ["Question 1", "Question 2", "Question 3"]
-      Do NOT add any explanation or formatting. No markdown. Just return the array.`,
+      prompt: `Prepare questions for a job interview.
+        The job role is ${role}.
+        The job experience level is ${level}.
+        The tech stack used in the job is: ${techstack}.
+        The focus between behavioural and technical questions should lean towards: ${type}.
+        The amount of questions required is: ${amount}.
+        Return JSON like: ["Q1", "Q2", "Q3"].
+        No explanation, no formatting.`,
     });
 
-    console.log("🧠 Gemini raw output:", questions);
-
-    // --- Step 5: Parse Questions ---
-    let parsedQuestions: string[];
-    try {
-      parsedQuestions = JSON.parse(questions);
-    } catch (e) {
-      console.error("❌ Failed to parse Gemini response:", e, questions);
-      return NextResponse.json(
-        { success: false, error: "Invalid JSON from Gemini" },
-        { status: 500 }
-      );
-    }
-
-    // --- Step 6: Save to Firestore ---
+    // 5. Store in Firestore
     const interview = {
       role,
       type,
       level,
       techstack: techstack.split(","),
-      question: parsedQuestions,
+      questions: JSON.parse(questions),
       userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
@@ -105,18 +80,54 @@ export async function POST(request: Request) {
 
     await db.collection("interviews").add(interview);
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return Response.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error(
-      "🔥 Gemini / Firestore error:",
-      error instanceof Error ? error.message : error
-    );
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : String(error),
-      },
+    console.error("🔥 Error:", error);
+    return Response.json(
+      { success: false, error: "Invalid JSON from Gemini" },
       { status: 500 }
     );
   }
+
+  // try {
+  //   const { text: questions } = await generateText({
+  //     model: google("gemini-2.0-flash-001"),
+  //     prompt: `Prepare questions for a job interview.
+  //       The job role is ${role}.
+  //       The job experience level is ${level}.
+  //       The tech stack used in the job is: ${techstack}.
+  //       The focus between behavioural and technical questions should lean towards: ${type}.
+  //       The amount of questions required is: ${amount}.
+  //       Please return only the questions, without any additional text.
+  //       The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
+  //       Return the questions formatted like this:
+  //       ["Question 1", "Question 2", "Question 3"]
+
+  //       Thank you! <3
+  //   `,
+  //   });
+
+  //   const interview = {
+  //     role: role,
+  //     type: type,
+  //     level: level,
+  //     techstack: techstack.split(","),
+  //     questions: JSON.parse(questions),
+  //     userId: userid,
+  //     finalized: true,
+  //     coverImage: getRandomInterviewCover(),
+  //     createdAt: new Date().toISOString(),
+  //   };
+
+  //   await db.collection("interviews").add(interview);
+
+  //   return Response.json({ success: true }, { status: 200 });
+  // } catch (error) {
+  //   console.error("Error:", error);
+  //   return Response.json({ success: false, error: error }, { status: 500 });
+  // }
+}
+
+export async function GET() {
+  return Response.json({ success: true, data: "Thank you!" }, { status: 200 });
 }

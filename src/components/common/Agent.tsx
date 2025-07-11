@@ -85,26 +85,20 @@ const Agent = ({userName,userId,type}:AgentProps) => {
       console.log("call is clikced")
       setCallStatus(CallStatus.CONNECTING)
 
-      await fetch("https://api.vapi.ai/call", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY}`,
-          "Content-Type": "application/json",
-          "x-user-id": "test-user" // 👈 same as used in backend
-        },
-        body: JSON.stringify({
-          assistant: {
-            id: process.env.NEXT_PUBLIC_ASSISTANT_ID // 🔁 Replace this with real assistant ID
-          },
-          customer: {
-            url: "webrtc:geethanjali", // fake call name
-            name: userName        // used in {customer.name}
-          },
-          metadata: {
-            userid: userId// 👈 send your app user ID here
-          }
-        })
-      });
+      //  @ts-expect-error - TS is wrong about vapi.start shape
+      
+     vapi.start({
+    assistant: {
+    id: process.env.NEXT_PUBLIC_ASSISTANT_ID!
+    },
+    customer: {
+    url: "webrtc:geethanjali",
+    name: userName || "User"
+    },
+    metadata: {
+    userid: userId || "test-user"
+    }
+})
       
 
     }
