@@ -88,10 +88,12 @@ const Agent = ({userName,userId,type}:AgentProps) => {
      
 
      vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!,{
-        variableValues:{
-          username:userName,
-          userid:userId
-        }
+  variableValues: {
+    username: userName || "User"
+  },
+  metadata: {
+    userid: userId || "test-user" // ✅ this flows to your backend
+  }
 })
       
 
