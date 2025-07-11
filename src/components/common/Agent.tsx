@@ -85,19 +85,13 @@ const Agent = ({userName,userId,type}:AgentProps) => {
       console.log("call is clikced")
       setCallStatus(CallStatus.CONNECTING)
 
-      //  @ts-expect-error - TS is wrong about vapi.start shape
-      
-     vapi.start({
-    assistant: {
-    id: process.env.NEXT_PUBLIC_ASSISTANT_ID!
-    },
-    customer: {
-    url: "webrtc:geethanjali",
-    name: userName || "User"
-    },
-    metadata: {
-    userid: userId || "test-user"
-    }
+     
+
+     vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!,{
+        variableValues:{
+          username:userName,
+          userid:userId
+        }
 })
       
 
