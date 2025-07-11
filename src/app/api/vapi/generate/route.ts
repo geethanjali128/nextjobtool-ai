@@ -41,14 +41,14 @@ export async function POST(request: Request) {
   }
 
   // 2. Extract userId from metadata or headers or payload
-  const userid =
-    rawBody?.metadata?.userid || // ✅ sent by frontend during call
-    request.headers.get("x-user-id") || // optional fallback
-    payload.userid;
+  // const userid =
+  //   rawBody?.metadata?.userid || // ✅ sent by frontend during call
+  //   request.headers.get("x-user-id") || // optional fallback
+  //   payload.userid;
 
-  console.log("user id", userid);
+  // console.log("user id", userid);
 
-  const { type, role, level, techstack, amount } = payload;
+  const { type, role, level, techstack, amount, userid } = payload;
 
   // 3. Validate all fields
   if (!type || !role || !level || !techstack || !amount || !userid) {
