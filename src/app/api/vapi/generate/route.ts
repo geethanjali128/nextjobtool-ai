@@ -12,8 +12,21 @@ interface Payload {
   userid?: string;
 }
 
+function extractUserId(body: any): string | null {
+  return (
+    body?.userid ||
+    body?.assistantOverrides?.variableValues?.userid ||
+    body?.call?.assistantOverrides?.variableValues?.userid ||
+    body?.call?.variableValues?.userid ||
+    body?.message?.call?.assistantOverrides?.variableValues?.userid || // catch deeply nested edge cases
+    null
+  );
+}
+
 export async function POST(request: Request) {
   const rawBody = await request.json();
+
+  const userid = extractUserId(rawBody);
 
   console.log("📦 Full Request Body:", JSON.stringify(rawBody, null, 2));
 
@@ -32,20 +45,7 @@ export async function POST(request: Request) {
     payload = { ...rawBody };
   }
 
-  // ✅ Extract userid correctly
-  function extractUserId(reqBody) {
-    return (
-      // Vapi sometimes puts it under call.assistantOverrides
-      reqBody?.call?.assistantOverrides?.variableValues?.userid ||
-      // Sometimes it comes under assistant.variableValues
-      reqBody?.assistant?.variableValues?.userid ||
-      // Sometimes Vapi flattens everything into top-level variableValues (rare but safe fallback)
-      reqBody?.variableValues?.userid ||
-      null
-    );
-  }
-
-  const userid = extractUserId(rawBody);
+  console.log("✅ Extracted userid:", userid);
 
   if (!userid) {
     console.error("❌ userid is missing");

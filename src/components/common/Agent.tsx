@@ -86,7 +86,14 @@ const Agent = ({userName,userId,type}:AgentProps) => {
       setCallStatus(CallStatus.CONNECTING)
 
      
-      console.log("Sending to Vapi => userId:", userId);
+      console.log("🔍 Payload sent to Vapi:", {
+  assistantId: process.env.NEXT_PUBLIC_ASSISTANT_ID,
+  variableValues: {
+    username: userName,
+    userid: userId,
+  }
+});
+
 
      vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!, {
   variableValues: {
