@@ -44,9 +44,9 @@ export async function POST(request: Request) {
 
   // 2. Extract userId from metadata or headers or payload
   const userid =
-    rawBody?.metadata?.userid || // ✅ sent by frontend during call
-    request.headers.get("x-user-id") || // optional fallback
-    payload.userid;
+    payload.userid || // ✅ check payload first now
+    rawBody?.metadata?.userid || // fallback
+    request.headers.get("x-user-id");
 
   console.log("user id", userid);
 

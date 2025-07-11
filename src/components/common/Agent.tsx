@@ -88,13 +88,11 @@ const Agent = ({userName,userId,type}:AgentProps) => {
      
       console.log("Sending to Vapi => userId:", userId);
 
-     vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!,  {
+     vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!, {
   variableValues: {
     username: userName,
-  },
-  metadata: {
-    userid: userId,
-  },
+    userid: userId, // ✅ send this here instead of metadata
+  }
 })
       
 
