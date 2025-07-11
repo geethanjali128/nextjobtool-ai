@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   const { type, role, level, techstack, amount } = payload;
 
   // 3. Validate all fields
-  if (!type || !role || !level || !techstack || !amount || !userid) {
+  if (!type || !role || !level || !amount || !userid) {
     console.log("❌ Missing fields", {
       type,
       role,
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       role,
       type,
       level,
-      techstack: techstack.split(","),
+      techstack: techstack ? techstack.split(",") : [],
       questions: JSON.parse(questions),
       userId: userid,
       finalized: true,
