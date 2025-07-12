@@ -2,9 +2,20 @@ import InterviewCard from "@/components/common/InterviewCard"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
-import { dummyInterviews } from "../../../constants"
+import { getCurrentUser, getInterviewsByUserId, getLatestInterviews } from "../../../lib/actions/auth.action"
 
-const Home = () => {
+const Home = async () => {
+
+  const user=await getCurrentUser()
+
+  const[userInterviews,latestInterviews]= await Promise.all([
+      getInterviewsByUserId(user?.id),
+      getLatestInterviews({ userId : user?.id})
+  ])
+
+
+  const hasPastInterviews= userInterviews?.length > 0
+  const hasUpcomingInterviews=latestInterviews?.length>0
   return (
     <>
     {/* CTA */}
@@ -32,16 +43,24 @@ const Home = () => {
     <section className="my-14">
     <h2>Your Interviews</h2>
     <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-y-5 my-5 lg:justify-items-start justify-items-center" >
-      {dummyInterviews.map( interview=> <InterviewCard key={interview.id} {...interview}/>)}
+      {hasPastInterviews ?(
+        userInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
+      ):(
+         <p>You haven&apos;t taken any interviews yet.</p>
+      )}
 
-      {/* <p>You haven&apos;t taken any interviews yet.</p> */}
+     
     </div>
     </section>
 
     <section>
       <h2>Take an interview</h2>
       <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-y-5  my-5 lg:justify-items-start justify-items-center">
-      {dummyInterviews.map( interview => <InterviewCard key={interview.id} {...interview}/>)}
+     {hasUpcomingInterviews ?(
+        latestInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
+      ):(
+         <p>There are no new interviews available.</p>
+      )}
       </div>
     </section>
     </>
