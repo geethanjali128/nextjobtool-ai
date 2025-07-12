@@ -42,13 +42,17 @@ const Agent = ({userName,userId,type}:AgentProps) => {
       const onCallStart=()=> setCallStatus(CallStatus.ACTIVE)
       const onCalEnd=()=> setCallStatus(CallStatus.FINISHED)
 
-      const onMessage=(message:Message)=>{
-          if(message.type === "transcript" && message.transcriptType === "final"){
-            const newMessage={role:message.role,transcript:message.transcript}
+      const onMessage = (message: Message) => {
+      if (message.type === "transcript" && message.transcriptType === "final") {
+    const newMessage: SavedMessage = {
+      role: message.role,
+      content: message.transcript,
+    };
 
-            setMessages((prev) => [...prev , newMessage])
-          }
-      }
+    setMessages((prev) => [...prev, newMessage]);
+  }
+};
+
 
       const onSpeechStart=()=>setIsSpeaking(true)
       const onSpeechEnd=()=>setIsSpeaking(false)
@@ -85,17 +89,7 @@ const Agent = ({userName,userId,type}:AgentProps) => {
       console.log("call is clikced")
       setCallStatus(CallStatus.CONNECTING)
 
-     
-      console.log("🔍 Payload sent to Vapi:", {
-  assistantId: process.env.NEXT_PUBLIC_ASSISTANT_ID,
-  variableValues: {
-    username: userName,
-    userid: userId,
-  }
-});
-
-
-     vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!, {
+   vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!, {
   variableValues: {
     username: userName,
     userid: userId, // ✅ send this here instead of metadata
@@ -141,7 +135,7 @@ const Agent = ({userName,userId,type}:AgentProps) => {
 
     {/* messages */}
     {
-      messages.length>0 && (
+      messages.length > 0 && (
         <div className="my-10 bg-indigo-100 py-2 border-2 border-indigo-200 rounded-md text-center shadow-inner">
           
            <p key={latestMessage} className={cn('transition-opacity duration-500 opacity-0' , 'animate-fadeIn opacity-100')}>{latestMessage}</p>
