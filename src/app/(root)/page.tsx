@@ -2,7 +2,8 @@ import InterviewCard from "@/components/common/InterviewCard"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
-import { getCurrentUser, getInterviewsByUserId, getLatestInterviews } from "../../../lib/actions/auth.action"
+import { getCurrentUser, } from "../../../lib/actions/auth.action"
+import { getInterviewsByUserId, getLatestInterviews } from "../../../lib/actions/general.actions"
 
 const Home = async () => {
 

@@ -4,6 +4,7 @@
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { interviewer } from "../../../constants"
 import { cn } from "../../../lib/utils"
 import { vapi } from "../../../lib/vapi.sdk"
 
@@ -25,7 +26,7 @@ interface SavedMessage {
 }
 
 
-const Agent = ({userName,userId,type}:AgentProps) => {
+const Agent = ({userName,userId,type,interviewId,questions}:AgentProps) => {
 
   // console.log(userName,userId,type)
 
@@ -79,9 +80,32 @@ const Agent = ({userName,userId,type}:AgentProps) => {
     },[])
 
 
+    const handleGenerateFeedback=async(message:SavedMessage[])=>{
+        console.log("Generate feedback here",message)
+
+        // pending -create a server action that generates feedback
+        const{success,id}={
+          success:true,
+          id:'feedback-id'
+        }
+
+        if(success && id){
+          router.push(`/interviews/${interviewId}/feedback`)
+        }else{
+          console.log("Error saving feedback")
+          router.push('/')
+        }
+    }
+
     useEffect(()=>{
 
-      if(callStatus === CallStatus.FINISHED) router.push('/')
+     if(callStatus === CallStatus.FINISHED){
+      if(type === 'generate'){
+        router.push('/')
+      }else{
+        handleGenerateFeedback()
+      }
+     }
 
     },[messages,callStatus,type,userId])
 
@@ -89,12 +113,26 @@ const Agent = ({userName,userId,type}:AgentProps) => {
       console.log("call is clikced")
       setCallStatus(CallStatus.CONNECTING)
 
-   vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!, {
-  variableValues: {
-    username: userName,
-    userid: userId, // ✅ send this here instead of metadata
-  }
-})
+      if(type === 'generate'){
+          await   vapi.start(process.env.NEXT_PUBLIC_ASSISTANT_ID!, {
+        variableValues: {
+         username: userName,
+        userid: userId, // ✅ send this here instead of metadata
+        }
+      })
+      }else{
+        let formattedQuestions=""
+        if(questions){
+          formattedQuestions=questions.map(question => `-${question}`).join('\n')
+        }
+
+        await vapi.start(interviewer,{
+          variableValues:{
+            question:formattedQuestions
+          }
+        })
+      }
+ 
       
 
     }

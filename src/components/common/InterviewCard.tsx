@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 import DisplayTechIcons from "./DisplayTechIcons";
 
 
-const InterviewCard = ({intevriewId,userId,role,type,techstack,createdAt}:InterviewCardProps) => {
+const InterviewCard = ({id,userId,role,type,techstack,createdAt}:InterviewCardProps) => {
 
   // for type saftey intializing it with null , later on it changes to Feedback object or null
   // because later on it doean't take the values other than null if we intialzed with it
@@ -62,7 +62,7 @@ const InterviewCard = ({intevriewId,userId,role,type,techstack,createdAt}:Interv
          <DisplayTechIcons techStack={techstack}/>
 
           <Button asChild className="bg-violet-500 text-white   rounded-3xl">
-            <Link href={feedback?`/interview/${intevriewId}/feedback`:`interview/${intevriewId}`}>
+            <Link href={feedback?`/interview/${id}/feedback`:`interview/${id}`}>
             {feedback?"Check Feedback":"View Interview"}
             </Link>
           </Button>
