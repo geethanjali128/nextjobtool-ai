@@ -28,7 +28,7 @@ const page = async({params}:RouteParams) => {
         <p className="bg-gray-600 text-white w-fit py-1 px-2 text-sm rounded-tr-lg rounded-bl-lg ">{interview?.type}</p>
         </div>
      <Agent 
-      userName={user?.name}
+      userName={user?.name|| ""}
       userId={user?.id}
       interviewId={id}
       type='interview'

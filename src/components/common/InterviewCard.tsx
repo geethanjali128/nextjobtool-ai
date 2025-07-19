@@ -1,16 +1,17 @@
 import dayjs from "dayjs";
 import Image from "next/image";
 import Link from "next/link";
+import { getFeedbackByInterviewId } from "../../../lib/actions/general.actions";
 import { getRandomInterviewCover } from "../../../lib/utils";
 import { Button } from "../ui/button";
 import DisplayTechIcons from "./DisplayTechIcons";
 
 
-const InterviewCard = ({id,userId,role,type,techstack,createdAt}:InterviewCardProps) => {
+const InterviewCard = async({id,userId,role,type,techstack,createdAt}:InterviewCardProps) => {
 
   // for type saftey intializing it with null , later on it changes to Feedback object or null
   // because later on it doean't take the values other than null if we intialzed with it
-  const feedback=null as Feedback|null;
+  const feedback= userId && id ? await getFeedbackByInterviewId({interviewId:id,userId}):null
 
   // checking that the intevriew type is included with words like mix with case insensitive then make it mixed otherwise type as it is
   const normalizedType=/mix/gi.test(type)?"mixed":type;
@@ -52,7 +53,7 @@ const InterviewCard = ({id,userId,role,type,techstack,createdAt}:InterviewCardPr
         </div>
         </div>
 
-        <div className="text-sm">
+        <div className="text-sm line-clamp-2">
           <p>{feedback?.finalAssessment || "You haven't take the interview yet. Take it now to improve skills."}</p>
         </div>
        
