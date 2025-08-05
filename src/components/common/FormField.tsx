@@ -39,6 +39,7 @@ const FormField = ({control,name,label,plcaeholder,type="text"}:FormFieldProps<T
       <Input 
       type={type}
       placeholder={plcaeholder} 
+     className="no-focus-glow"
       {...field} />
     </FormControl>
    

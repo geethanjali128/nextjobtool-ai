@@ -85,8 +85,8 @@ const page = async({params}:RouteParams) => {
 
       {/* buttons */}
       <div className="flex flex-row gap-8 text-center">
-         <Link href='/' className="rounded-3xl bg-blue-200 w-6/12 p-1 hove">Go to Home</Link>
-          <Link href={`/interview/${id}`} className="rounded-3xl bg-blue-200 w-6/12 p-1">Retake Interview</Link>
+         <Link href='/'  className="rounded-3xl bg-blue-200 hover:bg-blue-300 w-6/12 p-1 transition">Go to Home</Link>
+          <Link href={`/interview/${id}`} className="rounded-3xl bg-blue-200 hover:bg-blue-300 w-6/12 p-1 transition">Retake Interview</Link>
       </div>
    
     </div>

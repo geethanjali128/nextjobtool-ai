@@ -154,7 +154,9 @@ const AuthForm = ({type}:{type:FormType}) => {
           type="password"
           />
         
-        <Button  className="bg-violet-500 text-white w-full  rounded-3xl" type="submit">
+        <Button   className="bg-violet-500 text-white w-full rounded-3xl
+             transition-all duration-300 ease-in-out
+             hover:bg-violet-600 hover:text-gray-100 cursor-pointer" type="submit">
           {!isSignIn?"Create an account":"Signin"}
 
         </Button>

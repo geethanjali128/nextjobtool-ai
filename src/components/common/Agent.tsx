@@ -188,7 +188,8 @@ const Agent = ({userName,userId,type,interviewId,questions}:AgentProps) => {
     {/* call status */}
     <div className="md:w-80 w-full mx-auto">
       { callStatus !== CallStatus.ACTIVE ? (
-        <button className="rounded-full bg-green-600 w-full py-1 text-white" onClick={handleCall}>
+        <button className="rounded-full bg-green-600 w-full py-1 text-white  transition-all duration-500 ease-in-out
+             hover:bg-green-700 hover:text-gray-100 cursor-pointer" onClick={handleCall}>
            <span
               className={cn(
                 "absolute animate-ping rounded-full opacity-75",
@@ -198,7 +199,9 @@ const Agent = ({userName,userId,type,interviewId,questions}:AgentProps) => {
          <span>{ isCallInactiveOrFinished? "Call" : "..."}</span>
         </button>
       ):(
-        <button className="rounded-full bg-red-500 w-full py-1 text-white opacity-75" onClick={handleDisconnect}>End</button>
+        <button className="rounded-full bg-red-500 w-full py-1 text-white opacity-75
+             hover:opacity-100 hover:bg-red-600 hover:text-gray-100
+             transition-all duration-300 ease-in-out cursor-pointer"  onClick={handleDisconnect}>End</button>
       )}
     </div>
     </>

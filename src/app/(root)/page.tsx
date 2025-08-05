@@ -25,7 +25,9 @@ const Home = async () => {
       <div className="space-y-16">
         <h2 className="text-lg">Get Intevriew-Ready with AI-Powered Practcie & Feedback</h2>
         <p className="text-base">Practice real interview questions & get instant feedback</p>
-        <Button asChild className="bg-violet-500 text-white   rounded-3xl">
+        <Button asChild className="bg-violet-500 text-white rounded-3xl 
+              transition-all duration-500 ease-in-out
+             hover:bg-gray-700  hover:text-gray-200">
           <Link href='/interview'>
           Start an Intevriew
           </Link>

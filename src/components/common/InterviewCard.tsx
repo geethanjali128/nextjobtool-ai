@@ -23,7 +23,7 @@ const InterviewCard = async({id,userId,role,type,techstack,createdAt}:InterviewC
     // Then format the final date as "Month Day, Year" (e.g., "Jun 24, 2025")
   const formattedDate=dayjs(feedback?.createdAt || createdAt ||Date.now()).format('MMM D , YYYY')
   return (
-    <div className="w-[300px] bg-indigo-100 p-5 rounded-lg shadow-2xs relative">
+    <div className="w-[300px] bg-indigo-100 p-5 rounded-lg border border-transparent hover:border-indigo-400 hover:shadow-md transition-all duration-500">
       <div className="space-y-8">
         {/* badge */}
         <div className="absolute top-0 right-0">
@@ -62,7 +62,9 @@ const InterviewCard = async({id,userId,role,type,techstack,createdAt}:InterviewC
           {/* tech icons */}
          <DisplayTechIcons techStack={techstack}/>
 
-          <Button asChild className="bg-violet-500 text-white   rounded-3xl">
+          <Button asChild className="bg-violet-500 text-white rounded-3xl 
+              transition-all duration-500 ease-in-out
+             hover:bg-gray-700  hover:text-gray-200">
             <Link href={feedback?`/interview/${id}/feedback`:`interview/${id}`}>
             {feedback?"Check Feedback":"View Interview"}
             </Link>
