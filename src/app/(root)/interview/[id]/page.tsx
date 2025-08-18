@@ -16,8 +16,8 @@ const page = async({params}:RouteParams) => {
   return (
         <>
         <div className="flex flex-row justify-between items-center">
-          <div className="flex flex-row gap-4 items-center">
-             <div className="flex flex-row gap-4 items-center">
+          <div className="flex flex-row md:gap-4 gap-2 items-center">
+             <div className="flex flex-row md:gap-4 gap-2 items-center">
           <Image src={getRandomInterviewCover()} alt="cover-image" width={40} height={40} className="rounded-full object-cover size-[40px]"/>
 
                           <h3>{interview?.role}</h3>

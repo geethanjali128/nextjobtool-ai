@@ -10,7 +10,7 @@ const RootLayout = async({children}:{children:ReactNode}) => {
   
   if(!isUserAuthenticated) redirect("/sign-in")
   return (
-    <div className='bg-gray-100 h-auto'>
+    <div className='bg-gray-100 min-h-screen'>
       <div className='mx-5 lg:mx-36 py-10'>
       <nav className='mb-10'>
         <Link href="/" className='flex items-center gap-2'>

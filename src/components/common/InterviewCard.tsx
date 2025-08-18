@@ -23,7 +23,7 @@ const InterviewCard = async({id,userId,role,type,techstack,createdAt}:InterviewC
     // Then format the final date as "Month Day, Year" (e.g., "Jun 24, 2025")
   const formattedDate=dayjs(feedback?.createdAt || createdAt ||Date.now()).format('MMM D , YYYY')
   return (
-    <div className="w-[300px] bg-indigo-100 p-5 rounded-lg border border-transparent hover:border-indigo-400 hover:shadow-md transition-all duration-500">
+    <div className="w-[300px] bg-indigo-100 p-5 rounded-lg border border-transparent hover:border-indigo-400 hover:shadow-md transition-all duration-500 relative">
       <div className="space-y-8">
         {/* badge */}
         <div className="absolute top-0 right-0">

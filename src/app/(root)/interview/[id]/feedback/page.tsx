@@ -26,14 +26,14 @@ const page = async({params}:RouteParams) => {
       const formattedDate=dayjs(feedback?.createdAt ||Date.now()).format('MMM D , YYYY')
    
   return (
-    <div className="space-y-10 text-gray-600 mx-4">
-    <h2 className="text-4xl text-center">Feedback on the Interview - {interview?.role} Interview.</h2>
+    <div className="md:space-y-10 space-y-5 text-gray-600 md:mx-4">
+    <h2 className="md:text-4xl text-xl text-center">Feedback on the Interview - {interview?.role} Interview.</h2>
     {/* total score and  date */}
-    <div className="flex flex-row justify-between text-xl">
+    <div className="flex flex-row justify-between   md:text-xl text-xs">
       
-      <div className="flex flex-row gap-2 items-center" >
+      <div className="flex flex-row md:gap-2 gap-1.5  items-center" >
                 <Image src="/star.svg" alt="star" width={20} height={20} className="bg-black rounded-[2px]"/>
-                <span className="font-medium">Overall Impression: </span>  <p>{feedback?.totalScore || "---"}/100</p>
+                <span className="font-medium">Overall Impression: </span><p>{feedback?.totalScore || "---"}/100</p>
       </div>
       <div className="flex flex-row gap-2 items-center">
                   <Image src="/calendar.svg" alt="calendar" width={22} height={22} className="bg-black rounded-[2px]"/>
@@ -47,21 +47,21 @@ const page = async({params}:RouteParams) => {
     
 
     {/* categories */}
-    <div className="space-y-5">
-      <h3 className="text-2xl font-medium">Breakdown of Evaluation:</h3>
+    <div className="md:space-y-5 space-y-2">
+      <h3 className="md:text-2xl text-lg font-medium">Breakdown of Evaluation:</h3>
       {feedback?.categoryScores?.map( (category,index)=>(
         <div key={index} className="space-y-2">
-          <h4 className="text-lg font-medium">{`${index+1} . ${category.name} (${category.score}/100)`}</h4>
-          <p>{category.comment}</p>
+          <h4 className="md:text-lg text-base font-medium">{`${index+1} . ${category.name} (${category.score}/100)`}</h4>
+          <p className="md:text-base text-sm">{category.comment}</p>
         </div>
       ))}
     </div>
 
     {/* strengths */}
-    <ul className="space-y-2">
-      <h4 className="text-2xl font-medium">Strengths:</h4>
+    <ul className="md:space-y-2 space-y-0">
+      <h4 className="md:text-2xl text-lg font-medium">Strengths:</h4>
       {feedback?.strengths?.map( (strength,index)=>(
-        <li key={index}>
+        <li key={index} className="md:text-base text-sm">
          {index+1} . {strength}
         </li>
       ))}
@@ -69,9 +69,9 @@ const page = async({params}:RouteParams) => {
 
     {/* areas fo improvements */}
     <ul className="space-y-2">
-      <h4 className="text-2xl font-medium">Areas For Improvements:</h4>
+      <h4 className="md:text-2xl text-lg font-medium">Areas For Improvements:</h4>
       {feedback?.areasForImprovement?.map( (area,index)=>(
-        <li key={index}>
+        <li key={index} className="md:text-base text-sm">
          {index+1} . {area}
         </li>
       ))}
@@ -79,8 +79,8 @@ const page = async({params}:RouteParams) => {
 
 {/* final assesment */}
     <div className="space-y-1.5">
-      <h4 className="text-2xl font-medium">Final Assesment:</h4>
-      <p>{feedback?.finalAssessment}</p>
+      <h4 className="md:text-2xl text-lg font-medium">Final Assesment:</h4>
+      <p className="md:text-base text-sm">{feedback?.finalAssessment}</p>
     </div>
 
       {/* buttons */}
