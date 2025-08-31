@@ -8,6 +8,8 @@ import { db } from "../../firebase/admin";
 export const getInterviewsByUserId = async (
   userId: string
 ): Promise<Interview[] | null> => {
+  if (!userId) return [];
+
   const interviews = await db
     .collection("interviews")
     .where("userId", "==", userId)

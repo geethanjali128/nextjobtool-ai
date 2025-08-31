@@ -9,10 +9,16 @@ const Home = async () => {
 
   const user=await getCurrentUser()
 
-  const[userInterviews,latestInterviews]= await Promise.all([
-      getInterviewsByUserId(user?.id),
-      getLatestInterviews({ userId : user?.id})
-  ])
+  let userInterviews: Interview[] = [];
+  let latestInterviews: Interview[] = [];
+
+
+  if (user?.id) {
+  [userInterviews, latestInterviews] = await Promise.all([
+    getInterviewsByUserId(user.id),
+    getLatestInterviews({ userId: user.id }),
+  ]);
+}
 
 
   const hasPastInterviews= userInterviews?.length > 0
