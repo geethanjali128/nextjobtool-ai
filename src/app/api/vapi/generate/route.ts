@@ -1,5 +1,3 @@
-import { google } from "@ai-sdk/google";
-import { generateText } from "ai";
 import { db } from "../../../../../firebase/admin";
 import { getRandomInterviewCover } from "../../../../../lib/utils";
 
@@ -78,17 +76,11 @@ export async function POST(request: Request) {
 
   try {
     console.log("STARTING GEMINI");
-    const { text: questions } = await generateText({
-      model: google("gemini-1.5-flash"),
-      prompt: `Prepare questions for a job interview.
-        The job role is ${role}.
-        The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack}.
-        The focus between behavioural and technical questions should lean towards: ${type}.
-        The amount of questions required is: ${amount}.
-        Return JSON like: ["Q1", "Q2", "Q3"].
-        No explanation, no formatting.`,
-    });
+    const questions = JSON.stringify([
+      "Explain React hooks",
+      "What is useEffect?",
+      "Difference between let and var?",
+    ]);
 
     console.log("RAW QUESTIONS:", questions);
 
