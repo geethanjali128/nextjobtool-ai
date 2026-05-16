@@ -24,11 +24,12 @@ function extractUserId(body: any): string | null {
 }
 
 export async function POST(request: Request) {
+  console.log("API HIT");
   const rawBody = await request.json();
 
   const userid = extractUserId(rawBody);
 
-  console.log("📦 Full Request Body:", JSON.stringify(rawBody, null, 2));
+  // console.log("📦 Full Request Body:", JSON.stringify(rawBody, null, 2));
 
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -41,38 +42,42 @@ export async function POST(request: Request) {
   if (rawBody?.message?.toolCallList?.[0]?.function?.arguments) {
     const args = rawBody.message.toolCallList[0].function.arguments;
     payload = typeof args === "string" ? JSON.parse(args) : args;
+    console.log("RAW BODY:", JSON.stringify(rawBody, null, 2));
   } else {
     payload = { ...rawBody };
   }
 
-  console.log("✅ Extracted userid:", userid);
+  console.log("PAYLOAD:", payload);
+
+  console.log("USERID:", userid);
 
   if (!userid) {
     console.error("❌ userid is missing");
     return Response.json(
       { success: false, error: "userid is missing" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const { type, role, level, techstack, amount } = payload;
 
   if (!type || !role || !level || !amount || !userid) {
-    console.log("❌ Missing fields", {
-      type,
-      role,
-      level,
-      techstack,
-      amount,
-      userid,
-    });
+    // console.log("❌ Missing fields", {
+    //   type,
+    //   role,
+    //   level,
+    //   techstack,
+    //   amount,
+    //   userid,
+    // });
     return Response.json(
       { success: false, error: "Missing fields" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   try {
+    console.log("STARTING GEMINI");
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
       prompt: `Prepare questions for a job interview.
@@ -85,11 +90,15 @@ export async function POST(request: Request) {
         No explanation, no formatting.`,
     });
 
+    console.log("RAW QUESTIONS:", questions);
+
+    console.log("PARSING QUESTIONS");
     const interview = {
       role,
       type,
       level,
       techstack: techstack ? techstack.split(",").map((t) => t.trim()) : [],
+
       questions: JSON.parse(questions),
       userId: userid,
       finalized: true,
@@ -98,6 +107,8 @@ export async function POST(request: Request) {
     };
 
     console.log("📄 Interview object:", interview);
+
+    console.log("SAVING TO FIRESTORE");
 
     await db.collection("interviews").add(interview);
 
@@ -112,7 +123,7 @@ export async function POST(request: Request) {
         success: false,
         error: "Failed to generate or parse interview questions",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
