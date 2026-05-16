@@ -79,7 +79,7 @@ export async function POST(request: Request) {
   try {
     console.log("STARTING GEMINI");
     const { text: questions } = await generateText({
-      model: google("gemini-2.0-flash-001"),
+      model: google("gemini-1.5-flash"),
       prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
@@ -99,7 +99,12 @@ export async function POST(request: Request) {
       level,
       techstack: techstack ? techstack.split(",").map((t) => t.trim()) : [],
 
-      questions: JSON.parse(questions),
+      questions: JSON.parse(
+        questions
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim(),
+      ),
       userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
