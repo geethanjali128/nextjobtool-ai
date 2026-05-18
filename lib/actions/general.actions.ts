@@ -6,7 +6,7 @@ import { feedbackSchema } from "../../constants";
 import { db } from "../../firebase/admin";
 
 export const getInterviewsByUserId = async (
-  userId: string
+  userId: string,
 ): Promise<Interview[] | null> => {
   if (!userId) return [];
 
@@ -23,7 +23,7 @@ export const getInterviewsByUserId = async (
 };
 
 export const getLatestInterviews = async (
-  params: GetLatestInterviewsParams
+  params: GetLatestInterviewsParams,
 ): Promise<Interview[] | null> => {
   const { userId, limit = 20 } = params;
 
@@ -42,7 +42,7 @@ export const getLatestInterviews = async (
 };
 
 export const getInterviewById = async (
-  id: string
+  id: string,
 ): Promise<Interview | null> => {
   const interview = await db.collection("interviews").doc(id).get();
 
@@ -56,7 +56,7 @@ export const createFeedback = async (params: CreateFeedbackParams) => {
     const formattedTranscript = transcript
       .map(
         (sentence: { role: string; content: string }) =>
-          `-${sentence.role}: ${sentence.content}\n`
+          `-${sentence.role}: ${sentence.content}\n`,
       )
       .join("");
 
@@ -69,9 +69,7 @@ export const createFeedback = async (params: CreateFeedbackParams) => {
         finalAssessment,
       },
     } = await generateObject({
-      model: google("gemini-2.0-flash-001", {
-        structuredOutputs: false,
-      }),
+      model: google("gemini-1.5-flash"),
       schema: feedbackSchema,
       prompt: `
         You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
@@ -112,7 +110,7 @@ export const createFeedback = async (params: CreateFeedbackParams) => {
 };
 
 export const getFeedbackByInterviewId = async (
-  params: GetFeedbackByInterviewIdParams
+  params: GetFeedbackByInterviewIdParams,
 ): Promise<Feedback | null> => {
   const { interviewId, userId } = params;
 
