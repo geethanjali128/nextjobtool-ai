@@ -31,11 +31,11 @@ const Home = async () => {
       <div className="space-y-16">
         <h2 className="text-lg">Get Intevriew-Ready with AI-Powered Practcie & Feedback</h2>
         <p className="text-base">Practice real interview questions & get instant feedback</p>
-        <Button asChild className="bg-violet-500 text-white rounded-3xl 
+        <Button asChild className="bg-violet-500 text-white rounded-3xl
               transition-all duration-500 ease-in-out
-             hover:bg-gray-700  hover:text-gray-200">
+             hover:bg-gray-700  hover:text-gray-200 h-10 text-base">
           <Link href='/interview'>
-          Start an Intevriew
+         Generate Personalized Interview
           </Link>
           
           </Button>
@@ -50,7 +50,7 @@ const Home = async () => {
     {/* Interview Cards */}
     
     <section className="my-14">
-    <h2>Your Interviews</h2>
+    <h2>Your Personalized Interviews</h2>
     <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-y-5 my-5 lg:justify-items-start justify-items-center" >
       {hasPastInterviews ?(
         userInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
@@ -63,7 +63,7 @@ const Home = async () => {
     </section>
 
     <section>
-      <h2>Take an interview</h2>
+      <h2>Completed Interviews</h2>
       <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-y-5  my-5 lg:justify-items-start justify-items-center">
      {hasUpcomingInterviews ?(
         latestInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)

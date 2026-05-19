@@ -1,6 +1,7 @@
 
 'use client'
 
+import { User } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -165,11 +166,9 @@ const Agent = ({userName,userId,type,interviewId,questions}:AgentProps) => {
 
       {/* User Card */}
       <div className="md:w-6/12  bg-indigo-100 p-10 rounded-lg flex flex-col items-center space-y-5">
-        <div>
-            <Image src="/user-avatar.png" alt='user' width={539} height={539} 
-            className="rounded-full object-cover size-20"
-            />
-        </div>
+       <div className="bg-white p-5 rounded-full">
+  <User className="size-10 text-gray-600 " />
+</div>
         <h3>{userName}</h3>
       </div>
     </div>
