@@ -13,6 +13,7 @@ export const getInterviewsByUserId = async (
   const interviews = await db
     .collection("interviews")
     .where("userId", "==", userId)
+
     .orderBy("createdAt", "desc")
     .get();
 
@@ -22,17 +23,16 @@ export const getInterviewsByUserId = async (
   })) as Interview[];
 };
 
-export const getLatestInterviews = async (
-  params: GetLatestInterviewsParams,
+export const getCompletedInterviewsByUserId = async (
+  userId: string,
 ): Promise<Interview[] | null> => {
-  const { userId, limit = 20 } = params;
+  if (!userId) return [];
 
   const interviews = await db
     .collection("interviews")
-    .where("finalized", "==", true)
-    .where("userId", "!=", userId)
+    .where("userId", "==", userId)
+    .where("completed", "==", true)
     .orderBy("createdAt", "desc")
-    .limit(limit)
     .get();
 
   return interviews.docs.map((doc) => ({
@@ -40,6 +40,25 @@ export const getLatestInterviews = async (
     ...doc.data(),
   })) as Interview[];
 };
+
+// export const getLatestInterviews = async (
+//   params: GetLatestInterviewsParams,
+// ): Promise<Interview[] | null> => {
+//   const { userId, limit = 20 } = params;
+
+//   const interviews = await db
+//     .collection("interviews")
+//     .where("finalized", "==", true)
+//     .where("userId", "!=", userId)
+//     .orderBy("createdAt", "desc")
+//     .limit(limit)
+//     .get();
+
+//   return interviews.docs.map((doc) => ({
+//     id: doc?.id,
+//     ...doc.data(),
+//   })) as Interview[];
+// };
 
 export const getInterviewById = async (
   id: string,
@@ -106,6 +125,11 @@ ${formattedTranscript}
       areasForImprovement,
       finalAssessment,
       createdAt: new Date().toISOString(),
+    });
+
+    // Mark interview as completed
+    await db.collection("interviews").doc(interviewId).update({
+      completed: true,
     });
 
     return {

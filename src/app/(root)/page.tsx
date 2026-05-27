@@ -3,26 +3,33 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 import { getCurrentUser, } from "../../../lib/actions/auth.action"
-import { getInterviewsByUserId, getLatestInterviews } from "../../../lib/actions/general.actions"
+import { getInterviewsByUserId } from "../../../lib/actions/general.actions"
 
 const Home = async () => {
 
   const user=await getCurrentUser()
 
   let userInterviews: Interview[] = [];
-  let latestInterviews: Interview[] = [];
+ 
 
 
   if (user?.id) {
-  [userInterviews, latestInterviews] = await Promise.all([
-    getInterviewsByUserId(user.id),
-    getLatestInterviews({ userId: user.id }),
-  ]);
+  userInterviews = await getInterviewsByUserId(user.id);
 }
 
 
-  const hasPastInterviews= userInterviews?.length > 0
-  const hasUpcomingInterviews=latestInterviews?.length>0
+ const generatedInterviews = userInterviews?.filter(
+  (interview) => interview.completed !== true
+);
+
+const completedOnlyInterviews = userInterviews?.filter(
+  (interview) => interview.completed
+);
+
+const hasGeneratedInterviews = generatedInterviews?.length > 0;
+
+const hasCompletedInterviews = completedOnlyInterviews?.length > 0;
+
   return (
     <>
     {/* CTA */}
@@ -52,8 +59,8 @@ const Home = async () => {
     <section className="my-14">
     <h2>Your Personalized Interviews</h2>
     <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-y-5 my-5 lg:justify-items-start justify-items-center" >
-      {hasPastInterviews ?(
-        userInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
+      {hasGeneratedInterviews ?(
+        generatedInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
       ):(
          <p>You haven&apos;t taken any interviews yet.</p>
       )}
@@ -65,8 +72,8 @@ const Home = async () => {
     <section>
       <h2>Completed Interviews</h2>
       <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-y-5  my-5 lg:justify-items-start justify-items-center">
-     {hasUpcomingInterviews ?(
-        latestInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
+     {hasCompletedInterviews ?(
+         completedOnlyInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
       ):(
          <p>There are no new interviews available.</p>
       )}

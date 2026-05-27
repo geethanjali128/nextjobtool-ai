@@ -105,6 +105,7 @@ export async function POST(request: Request) {
       ),
       userId: userid,
       finalized: true,
+      completed: false,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
     };
