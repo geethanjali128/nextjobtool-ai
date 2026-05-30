@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -27,6 +28,7 @@ const authFormSchema=(type:FormType)=>{
 
 // AuthForm component
 const AuthForm = ({type}:{type:FormType}) => {
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter()
 
@@ -46,6 +48,8 @@ const AuthForm = ({type}:{type:FormType}) => {
 
   // onsubmit functionality
  async function onSubmit(values: z.infer<typeof formSchema>) {
+
+   setLoading(true);
     
     try{
       if(type === 'sign-up'){
@@ -109,6 +113,9 @@ const AuthForm = ({type}:{type:FormType}) => {
       console.log("error",error)
       toast.error(`There was an error:${error}`)
     }
+     finally {
+  setLoading(false)
+  } 
   }
 
 
@@ -154,12 +161,22 @@ const AuthForm = ({type}:{type:FormType}) => {
           type="password"
           />
         
-        <Button   className="bg-violet-500 text-white w-full rounded-3xl
-             transition-all duration-300 ease-in-out
-             hover:bg-violet-600 hover:text-gray-100 cursor-pointer" type="submit">
-          {!isSignIn?"Create an account":"Signin"}
-
-        </Button>
+      <Button
+  disabled={loading}
+  className="bg-violet-500 text-white w-full rounded-3xl
+  transition-all duration-300 ease-in-out
+  hover:bg-violet-600 hover:text-gray-100
+  disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+  type="submit"
+>
+  {loading
+    ? isSignIn
+      ? "Signing In..."
+      : "Creating Account..."
+    : !isSignIn
+    ? "Create an account"
+    : "Signin"}
+</Button>
 
         <p className="text-center text-sm md:text-base">{!isSignIn?"Already have an account":"Don't have an account"} ?
         <Link href={!isSignIn?"/sign-in":"/sign-up"} className="text-violet-500 mx-1 ">{!isSignIn?"sign-in":"sign-up"}</Link>

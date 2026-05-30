@@ -62,7 +62,7 @@ const hasCompletedInterviews = completedOnlyInterviews?.length > 0;
       {hasGeneratedInterviews ?(
         generatedInterviews?.map( interview=> <InterviewCard key={interview.id} {...interview}/>)
       ):(
-         <p>You haven&apos;t taken any interviews yet.</p>
+         <p className="w-max">You haven&apos;t generated any new interviews yet.</p>
       )}
 
      

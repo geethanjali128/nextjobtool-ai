@@ -195,12 +195,16 @@ const Agent = ({userName,userId,type,interviewId,questions}:AgentProps) => {
                 callStatus !== CallStatus.CONNECTING && "hidden"
               )}
             />
-         <span>{ isCallInactiveOrFinished? "Call" : "..."}</span>
+         <span>
+  {isCallInactiveOrFinished ? interviewId? "Start Interview": "Generate Interview": "Connecting..."}
+  </span>
         </button>
       ):(
         <button className="rounded-full bg-red-500 w-full py-1 text-white opacity-75
              hover:opacity-100 hover:bg-red-600 hover:text-gray-100
-             transition-all duration-300 ease-in-out cursor-pointer"  onClick={handleDisconnect}>End</button>
+             transition-all duration-300 ease-in-out cursor-pointer"  onClick={handleDisconnect}>
+               <span>{ isCallInactiveOrFinished? "Generating..." : "End"}</span>
+             </button>
       )}
     </div>
     </>
